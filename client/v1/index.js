@@ -81,6 +81,7 @@ console.log(priceOrder);
 // 3. Log the variable
 
 var dateComp = (a,b) => {return new Date(a.date) - new Date(b.date)}
+var dateCompDesc = (a,b) => {return new Date(b.date) - new Date(a.date)}
 
 var dateOrder = marketplace.sort(dateComp);
 console.log(dateOrder);
@@ -128,17 +129,36 @@ console.log(`Average price : ${averagePrice}`);
 //
 // 2. Log the variable
 // 3. Log the number of products by brands
+function allButBrand(obj){
+  var infoNoBrand = {}
+  for (const [key, value] of Object.entries(obj)) {
+    if (key != 'brand'){
+      infoNoBrand[key] = value;
+    }
+  }
+  return infoNoBrand;
+}
 
+var newMKPlace = {}
+uniqueBrands.forEach(brand => newMKPlace[brand] = []);
+marketplace.forEach(product => newMKPlace[product.brand].push(allButBrand(product)));
+console.log(newMKPlace);
 
 // 🎯 TODO: Sort by price for each brand
 // 1. For each brand, sort the products by price, from highest to lowest
 // 2. Log the sort
-
+for (var val of Object.values(newMKPlace)) {
+  val = val.sort(priceComp);
+}
+console.log(newMKPlace);
 
 // 🎯 TODO: Sort by date for each brand
 // 1. For each brand, sort the products by date, from old to recent
 // 2. Log the sort
-
+for (var val of Object.values(newMKPlace)) {
+  val = val.sort(dateCompDesc);
+}
+console.log(newMKPlace);
 
 
 
@@ -153,7 +173,19 @@ console.log(`Average price : ${averagePrice}`);
 // 🎯 TODO: Compute the p90 price value
 // 1. Compute the p90 price value of each brand
 // The p90 value (90th percentile) is the lower value expected to be exceeded in 90% of the products
+function P90(prices){
+  const pricesSorted = prices.sort(priceComp);
+  const index10 = pricesSorted[Math.round(pricesSorted.length/10)];
+  return index10;
+}
 
+var P90s = {}
+for (const [key, value] of Object.entries(newMKPlace)) {
+  var brandPrices = value.map(obj => obj.price);
+  P90s[key] = P90(brandPrices);
+}
+console.log("Brands P90s : ")
+console.log(P90s);
 
 
 
