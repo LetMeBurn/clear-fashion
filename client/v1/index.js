@@ -80,20 +80,28 @@ console.log(priceOrder);
 // 2. Create a variable and assign it the list of products by date from recent to old
 // 3. Log the variable
 
-//var dateComp = (a,b) => {return }
+var dateComp = (a,b) => {return new Date(a.date) - new Date(b.date)}
 
-//var dateOrder = marketplace.sort(dateComp);
-//console.log(dateOrder);
+var dateOrder = marketplace.sort(dateComp);
+console.log(dateOrder);
 
 // 🎯 TODO: Filter a specific price range
 // 1. Filter the list of products between 50€ and 100€
 // 2. Log the list
+function moderatePrice(a){
+  return a.price > 50 && a.price < 100;
+}
 
+var moderatePrices = marketplace.filter(moderatePrice);
+console.log(moderatePrices)
 
 // 🎯 TODO: Average Basket
 // 1. Determine the average basket of the marketplace
 // 2. Log the average
-
+const averagePriceFct = arr => arr.reduce( ( a, b ) => a + b, 0 ) / arr.length;
+    
+const averagePrice = averagePriceFct(marketplace.map(obj => obj.price));    
+console.log(`Average price : ${averagePrice}`);
 
 
 
