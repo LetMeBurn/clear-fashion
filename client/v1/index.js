@@ -261,28 +261,65 @@ const COTELE_PARIS = [
 // 🎯 TODO: New released products
 // // 1. Log if we have new products only (true or false)
 // // A new product is a product `released` less than 2 weeks.
+function newProduct(pDate){
+  const datediff = Math.abs(new Date() - new Date(pDate));
+  const diffDays = Math.ceil(datediff / (1000 * 60 * 60 * 24)); 
+  if (diffDays < 14)
+    return true;
+  else
+    return false;
+}
 
+function findsTrue(arr){
+  for (var value of arr){
+    if (value == true)
+      return true;
+  }
+  return false;
+}
+
+var newProducts = COTELE_PARIS.map(obj => newProduct(obj.released));
+var trueFound = findsTrue(newProducts);
+if (trueFound){
+  console.log("There's a brand-new product on the website!");
+}
+else{
+  console.log("Nothing's changed recently in terms of products.");
+}
 
 // 🎯 TODO: Reasonable price
 // // 1. Log if coteleparis is a reasonable price shop (true or false)
 // // A reasonable price if all the products are less than 100€
-
+var cotelePrices = COTELE_PARIS.map(obj => obj.price);
+if (cotelePrices.some(price => price > 100)){
+  console.log("This isn't a reasonable price shop.");
+}
+else{
+  console.log("Every item in this shop has a reasonable price.");
+}
 
 // 🎯 TODO: Find a specific product
 // 1. Find the product with the uuid `b56c6d88-749a-5b4c-b571-e5b5c6483131`
 // 2. Log the product
-
+var specUUID = COTELE_PARIS.find(obj => obj.uuid == `b56c6d88-749a-5b4c-b571-e5b5c6483131`);
+console.log(specUUID);
 
 // 🎯 TODO: Delete a specific product
 // 1. Delete the product with the uuid `b56c6d88-749a-5b4c-b571-e5b5c6483131`
 // 2. Log the new list of product
+var updatedCOTELE = COTELE_PARIS.filter(obj => obj != specUUID);
+console.log(updatedCOTELE)
 
 // 🎯 TODO: Save the favorite product
 let blueJacket = {
   'link': 'https://coteleparis.com/collections/tous-les-produits-cotele/products/la-veste-bleu-roi',
   'price': 110,
-  'uuid': 'b4b05398-fee0-4b31-90fe-a794d2ccfaaa'
+  //'name' : 'blue jacket',
+  'uuid': 'b4b05398-fee0-4b31-90fe-a794d2ccfaaa',
+  //'released': 'today'
 };
+updatedCOTELE.push(blueJacket);
+console.log(updatedCOTELE);
 
 // we make a copy of blueJacket to jacket
 // and set a new property `favorite` to true
@@ -291,7 +328,12 @@ let jacket = blueJacket;
 jacket.favorite = true;
 
 // 1. Log `blueJacket` and `jacket` variables
+console.log(`bluejacket :`);
+console.log(blueJacket);
+console.log(`jacket :`);
+console.log(jacket);
 // 2. What do you notice?
+// -> Setting favorite to true on jacket has set the same on blue jacket because they are the same reference
 
 blueJacket = {
   'link': 'https://coteleparis.com/collections/tous-les-produits-cotele/products/la-veste-bleu-roi',
@@ -301,8 +343,8 @@ blueJacket = {
 
 // 3. Update `jacket` property with `favorite` to true WITHOUT changing blueJacket properties
 
-
-
+jacket = Object.assign({}, blueJacket);
+jacket.favorite = true;
 
 
 /**
@@ -314,3 +356,8 @@ blueJacket = {
 // 🎯 TODO: Save in localStorage
 // 1. Save MY_FAVORITE_BRANDS in the localStorage
 // 2. log the localStorage
+localStorage.setItem('MY_FAVORITE_BRANDS', JSON.stringify(MY_FAVORITE_BRANDS));
+
+var retrievedObject = localStorage.getItem('MY_FAVORITE_BRANDS');
+
+console.log('retrievedObject: ', JSON.parse(retrievedObject));
