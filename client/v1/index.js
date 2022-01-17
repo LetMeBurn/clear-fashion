@@ -48,25 +48,42 @@ console.log(MY_FAVORITE_BRANDS[0]);
 // 🎯 TODO: Number of products
 // 1. Create a variable and assign it the number of products
 // 2. Log the variable
+var nproducts = marketplace.length;
+console.log(`${nproducts} products in this marketplace`);
 
 
 // 🎯 TODO: Brands name
 // 1. Create a variable and assign it the list of brands name only
 // 2. Log the variable
 // 3. Log how many brands we have
+var brandNames = []
+marketplace.forEach(obj => brandNames.push(obj.brand))
 
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
+var uniqueBrands = brandNames.filter(onlyUnique);
+console.log(uniqueBrands);
 
 // 🎯 TODO: Sort by price
 // 1. Create a function to sort the marketplace products by price
 // 2. Create a variable and assign it the list of products by price from lowest to highest
 // 3. Log the variable
+var priceComp = (a,b) => {return parseInt(a.price) - parseInt(b.price)}
 
+var priceOrder = marketplace.sort(priceComp);
+console.log(priceOrder);
 
 // 🎯 TODO: Sort by date
 // 1. Create a function to sort the marketplace objects by products date
 // 2. Create a variable and assign it the list of products by date from recent to old
 // 3. Log the variable
 
+//var dateComp = (a,b) => {return }
+
+//var dateOrder = marketplace.sort(dateComp);
+//console.log(dateOrder);
 
 // 🎯 TODO: Filter a specific price range
 // 1. Filter the list of products between 50€ and 100€
