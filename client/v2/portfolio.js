@@ -17,6 +17,7 @@ var currentsize = 0;
 var brandsList = []
 var allProducts = []
 var updatedProducts = []
+var slicedProducts = []
 
 /**
  * Set global value
@@ -48,6 +49,8 @@ const fetchProducts = async (page = 1, size = 12) => {
     if (size < 100){
       currentsize = size;
     }
+    //Sets length to 0 if we fetch from the API
+    updatedProducts = []
 
     if (body.success !== true) {
       console.error(body);
@@ -153,8 +156,8 @@ function filterByBrand(brandName){
   return allProducts.filter(obj => obj.brand == brandName);
 }
 
-function GenerateNewPagination(newProductList, displaySize){
-  return {'currentPage' : 1, 'pageCount' : Math.ceil(newProductList.length/displaySize), 'pageSize' : displaySize, 'count' : newProductList.length};
+function GenerateNewPagination(newProductList, displaySize, displayPage){
+  return {'currentPage' : displayPage, 'pageCount' : Math.ceil(newProductList.length/displaySize), 'pageSize' : displaySize, 'count' : newProductList.length};
 }
 
 /**
@@ -186,15 +189,33 @@ function brandsRetrieval(brandsList){
 selectShow.addEventListener('change', event => {
   currentsize = parseInt(event.target.value);
   currentPagination.currentPage = 1; //Prevent from displaying empty pages
-  fetchProducts(currentPagination.currentPage, currentsize)
-    .then(setCurrentProducts)
-    .then(() => render(currentProducts, currentPagination));
+  if (updatedProducts.length == 0){
+    fetchProducts(currentPagination.currentPage, currentsize)
+      .then(setCurrentProducts)
+      .then(() => render(currentProducts, currentPagination));
+  }
+  else {
+    var newPagination = GenerateNewPagination(updatedProducts, currentsize, currentPagination.currentPage);
+    slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
+    currentProducts = slicedProducts;
+    currentPagination = newPagination;
+    render(slicedProducts, newPagination);
+  }
 });
 
 selectPage.addEventListener('change', event => {
-  fetchProducts(parseInt(event.target.value), currentsize)
-    .then(setCurrentProducts)
-    .then(() => render(currentProducts, currentPagination));
+  if (updatedProducts.length == 0){
+    fetchProducts(parseInt(event.target.value), currentsize)
+      .then(setCurrentProducts)
+      .then(() => render(currentProducts, currentPagination));
+  }
+  else{
+    var newPagination = GenerateNewPagination(updatedProducts, currentsize, parseInt(event.target.value));
+    slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
+    currentProducts = slicedProducts;
+    currentPagination = newPagination;
+    render(slicedProducts, newPagination);
+  }
 });
 
 selectBrand.addEventListener('change', event => {
@@ -206,12 +227,12 @@ selectBrand.addEventListener('change', event => {
   }
   else{
     updatedProducts = filterByBrand(event.target.value);
-    var newPagination = GenerateNewPagination(updatedProducts, currentsize);
-    var slicedNPList = updatedProducts.slice(0+newPagination.currentPage*newPagination.pageSize, newPagination.pageSize+newPagination.currentPage*newPagination.pageSize);
+    var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
+    slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
     console.log(newPagination);
-    currentProducts = slicedNPList;
+    currentProducts = slicedProducts;
     currentPagination = newPagination;
-    render(slicedNPList, newPagination);
+    render(slicedProducts, newPagination);
   }
 });
 
