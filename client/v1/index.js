@@ -96,8 +96,8 @@ function moderatePrice(a){
 var moderatePrices = marketplace.filter(moderatePrice);
 console.log(moderatePrices)
 
-// 🎯 TODO: Average Basket
-// 1. Determine the average basket of the marketplace
+// 🎯 TODO: Average price
+// 1. Determine the average price of the marketplace
 // 2. Log the average
 const averagePriceFct = arr => arr.reduce( ( a, b ) => a + b, 0 ) / arr.length;
     
