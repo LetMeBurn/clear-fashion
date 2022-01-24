@@ -7,10 +7,15 @@ let currentPagination = {};
 
 // inititiate selectors
 const selectShow = document.querySelector('#show-select');
-var currentsize = 0;
 const selectPage = document.querySelector('#page-select');
+const selectBrand = document.querySelector('#brand-select')
 const sectionProducts = document.querySelector('#products');
 const spanNbProducts = document.querySelector('#nbProducts');
+
+//Variables needed to be store
+var currentsize = 0;
+var brandsList = []
+var allProducts = []
 
 /**
  * Set global value
@@ -20,6 +25,11 @@ const spanNbProducts = document.querySelector('#nbProducts');
 const setCurrentProducts = ({result, meta}) => {
   currentProducts = result;
   currentPagination = meta;
+};
+const setAllProducts = ({result, meta}) => {
+  allProducts = result;
+  brandsList = UniqueBrands(result);
+  renderBrands(brandsList);
 };
 
 /**
@@ -47,6 +57,7 @@ const fetchProducts = async (page = 1, size = 12) => {
     return {currentProducts, currentPagination};
   }
 };
+
 
 /**
  * Render list of products
@@ -93,16 +104,42 @@ const renderPagination = pagination => {
  * @param  {Object} pagination
  */
 const renderIndicators = pagination => {
+  //console.log(pagination);
   const {count} = pagination;
 
   spanNbProducts.innerHTML = count;
 };
 
+/**
+ * Render list of products
+ * @param  {Array} brands
+ */
+const renderBrands = brandsList => {
+  selectBrand.innerHTML = brandsList;
+}
+
 const render = (products, pagination) => {
   renderProducts(products);
   renderPagination(pagination);
   renderIndicators(pagination);
+  return pagination.count
 };
+
+/**
+ * Declaration of Every Product Processing Functions
+ */
+
+function UniqueBrands(productList) {
+  var brandNames = []
+  productList.forEach(obj => brandNames.push(obj.brand));
+
+  return brandNames.filter(onlyUnique);
+}
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}
+ 
+ 
 
 /**
  * Declaration of all Listeners
@@ -112,6 +149,24 @@ const render = (products, pagination) => {
  * Select the number of products to display
  * @type {[type]}
  */
+
+//Called when page has been fully created
+document.addEventListener('DOMContentLoaded', () =>
+  fetchProducts()
+    .then(setCurrentProducts)
+    .then(() => retrieveAllProducts(render(currentProducts, currentPagination)))
+);
+
+function retrieveAllProducts(maxNumber) {
+  fetchProducts(1,maxNumber)
+    .then(setAllProducts)
+}
+
+function brandsRetrieval(brandsList){
+  brandsList = UniqueBrands(allProducts, brandsList);
+}
+
+
 selectShow.addEventListener('change', event => {
   currentsize = parseInt(event.target.value);
   currentPagination.currentPage = 1; //Prevent from displaying empty pages
@@ -119,12 +174,6 @@ selectShow.addEventListener('change', event => {
     .then(setCurrentProducts)
     .then(() => render(currentProducts, currentPagination));
 });
-
-document.addEventListener('DOMContentLoaded', () =>
-  fetchProducts()
-    .then(setCurrentProducts)
-    .then(() => render(currentProducts, currentPagination))
-);
 
 selectPage.addEventListener('change', event => {
   fetchProducts(parseInt(event.target.value), currentsize)
