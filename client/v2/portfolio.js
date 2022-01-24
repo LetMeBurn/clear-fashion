@@ -2,8 +2,8 @@
 'use strict';
 
 // current products on the page
-let currentProducts = [];
-let currentPagination = {};
+var currentProducts = [];
+var currentPagination = {};
 
 // inititiate selectors
 const selectShow = document.querySelector('#show-select');
@@ -16,6 +16,7 @@ const spanNbProducts = document.querySelector('#nbProducts');
 var currentsize = 0;
 var brandsList = []
 var allProducts = []
+var updatedProducts = []
 
 /**
  * Set global value
@@ -44,7 +45,9 @@ const fetchProducts = async (page = 1, size = 12) => {
       `https://clear-fashion-api.vercel.app?page=${page}&size=${size}`
     );
     const body = await response.json();
-    currentsize = size;
+    if (size < 100){
+      currentsize = size;
+    }
 
     if (body.success !== true) {
       console.error(body);
@@ -115,7 +118,12 @@ const renderIndicators = pagination => {
  * @param  {Array} brands
  */
 const renderBrands = brandsList => {
-  selectBrand.innerHTML = brandsList;
+  var htmlBrands = "";
+  for (let i = 0; i < brandsList.length; i++) {
+    htmlBrands += `<option value="${brandsList[i]}">${brandsList[i]}</option>`
+  }
+
+  selectBrand.innerHTML = htmlBrands;
 }
 
 const render = (products, pagination) => {
@@ -130,7 +138,9 @@ const render = (products, pagination) => {
  */
 
 function UniqueBrands(productList) {
-  var brandNames = []
+  var brandNames = [];
+  const special = "Any";
+  brandNames.push(special);
   productList.forEach(obj => brandNames.push(obj.brand));
 
   return brandNames.filter(onlyUnique);
@@ -138,8 +148,14 @@ function UniqueBrands(productList) {
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
- 
- 
+
+function filterByBrand(brandName){
+  return allProducts.filter(obj => obj.brand == brandName);
+}
+
+function GenerateNewPagination(newProductList, displaySize){
+  return {'currentPage' : 1, 'pageCount' : Math.ceil(newProductList.length/displaySize), 'pageSize' : displaySize, 'count' : newProductList.length};
+}
 
 /**
  * Declaration of all Listeners
@@ -179,6 +195,24 @@ selectPage.addEventListener('change', event => {
   fetchProducts(parseInt(event.target.value), currentsize)
     .then(setCurrentProducts)
     .then(() => render(currentProducts, currentPagination));
+});
+
+selectBrand.addEventListener('change', event => {
+  if (event.target.value == 'Any'){
+    currentPagination.currentPage = 1; //Prevent from displaying empty pages
+    fetchProducts(currentPagination.currentPage, currentsize)
+      .then(setCurrentProducts)
+      .then(() => render(currentProducts, currentPagination));
+  }
+  else{
+    updatedProducts = filterByBrand(event.target.value);
+    var newPagination = GenerateNewPagination(updatedProducts, currentsize);
+    var slicedNPList = updatedProducts.slice(0+newPagination.currentPage*newPagination.pageSize, newPagination.pageSize+newPagination.currentPage*newPagination.pageSize);
+    console.log(newPagination);
+    currentProducts = slicedNPList;
+    currentPagination = newPagination;
+    render(slicedNPList, newPagination);
+  }
 });
 
 
