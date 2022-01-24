@@ -7,6 +7,7 @@ let currentPagination = {};
 
 // inititiate selectors
 const selectShow = document.querySelector('#show-select');
+var currentsize = 0;
 const selectPage = document.querySelector('#page-select');
 const sectionProducts = document.querySelector('#products');
 const spanNbProducts = document.querySelector('#nbProducts');
@@ -33,6 +34,7 @@ const fetchProducts = async (page = 1, size = 12) => {
       `https://clear-fashion-api.vercel.app?page=${page}&size=${size}`
     );
     const body = await response.json();
+    currentsize = size;
 
     if (body.success !== true) {
       console.error(body);
@@ -111,7 +113,9 @@ const render = (products, pagination) => {
  * @type {[type]}
  */
 selectShow.addEventListener('change', event => {
-  fetchProducts(currentPagination.currentPage, parseInt(event.target.value))
+  currentsize = parseInt(event.target.value);
+  currentPagination.currentPage = 1; //Prevent from displaying empty pages
+  fetchProducts(currentPagination.currentPage, currentsize)
     .then(setCurrentProducts)
     .then(() => render(currentProducts, currentPagination));
 });
@@ -121,3 +125,11 @@ document.addEventListener('DOMContentLoaded', () =>
     .then(setCurrentProducts)
     .then(() => render(currentProducts, currentPagination))
 );
+
+selectPage.addEventListener('change', event => {
+  fetchProducts(parseInt(event.target.value), currentsize)
+    .then(setCurrentProducts)
+    .then(() => render(currentProducts, currentPagination));
+});
+
+
