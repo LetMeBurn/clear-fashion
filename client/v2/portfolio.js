@@ -25,6 +25,7 @@ const spanLatestRelease = document.getElementById("latestProductDate");
 var currentsize = 0;
 var brandsList = []
 var allProducts = []
+var unfilteredProducts = []
 var updatedProducts = []
 var slicedProducts = []
 
@@ -39,6 +40,8 @@ const setCurrentProducts = ({result, meta}) => {
 };
 const setAllProducts = ({result, meta}) => {
   allProducts = result;
+  updatedProducts = result;
+  unfilteredProducts = result;
   brandsList = UniqueBrands(result);
   renderIndicators(result, meta);
   renderBrands(brandsList);
@@ -60,7 +63,8 @@ const fetchProducts = async (page = 1, size = 12) => {
       currentsize = size;
     }
     //Sets length to 0 if we fetch from the API
-    updatedProducts = []
+    updatedProducts = allProducts;
+    unfilteredProducts = updatedProducts;
 
     if (body.success !== true) {
       console.error(body);
@@ -124,7 +128,8 @@ const renderIndicators = (products, pagination) => {
   const {count} = pagination;
 
   spanNbProducts.innerHTML = count;
-  spanNbNewProducts.textContent = filterNewReleases().length; //supposed to be done regarding newProducts list
+  if (updatedProducts.length == 0) {spanNbNewProducts.textContent = filterNewReleases(allProducts).length;}
+  else {spanNbNewProducts.textContent = filterNewReleases(updatedProducts).length;}
   spanP50.textContent = POperation(products, 50) + "€";
   spanP90.textContent = POperation(products, 90) + "€";
   spanP95.textContent = POperation(products, 95) + "€";
@@ -171,8 +176,8 @@ function filterByBrand(brandName){
   return allProducts.filter(obj => obj.brand == brandName);
 }
 
-function filterReasonablePrices(priceMax = 50){
-  return updatedProducts.filter(obj => obj.price <= priceMax);
+function filterReasonablePrices(usedList, priceMax = 50){
+  return usedList.filter(obj => obj.price <= priceMax);
 }
 
 function newRelease(releaseDate, daysThreshold){
@@ -181,8 +186,8 @@ function newRelease(releaseDate, daysThreshold){
   if (diffDays < 14)
     return releaseDate;
 }
-function filterNewReleases(daysThreshold = 14){
-  return allProducts.filter(obj => newRelease(obj.released, daysThreshold));
+function filterNewReleases(usedList, daysThreshold = 14){
+  return usedList.filter(obj => newRelease(obj.released, daysThreshold));
 }
 
 //Data sorters :
@@ -270,6 +275,7 @@ selectBrand.addEventListener('change', event => {
   }
   else{
     updatedProducts = filterByBrand(event.target.value);
+    unfilteredProducts = updatedProducts;
     var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
     slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
     currentProducts = slicedProducts;
@@ -280,7 +286,10 @@ selectBrand.addEventListener('change', event => {
 
 filterRPrice.onchange = function() {
   if(filterRPrice.checked) {
-    updatedProducts = filterReasonablePrices();
+    var usedList = updatedProducts;
+    if (updatedProducts.length == 0){usedList = allProducts;}
+
+    updatedProducts = filterReasonablePrices(usedList);
     var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
     slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
     currentProducts = slicedProducts;
@@ -288,13 +297,16 @@ filterRPrice.onchange = function() {
     render(slicedProducts, newPagination);
   } 
   else {
-    console.log('Unfilter reasonable prices, need to see how to store or recreate unfiltered data');
+    ProcessFilters();
   }
 };
 
 filterRReleased.onchange = function() {
   if(filterRReleased.checked) {
-    updatedProducts = filterNewReleases();
+    var usedList = updatedProducts;
+    if (updatedProducts.length == 0){usedList = allProducts;}
+
+    updatedProducts = filterNewReleases(usedList);
     var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
     slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
     currentProducts = slicedProducts;
@@ -302,15 +314,28 @@ filterRReleased.onchange = function() {
     render(slicedProducts, newPagination);
   } 
   else {
-    console.log('Unfilter reasonable prices, need to see how to store or recreate unfiltered data');
+    ProcessFilters();
   }
 };
+
+function ProcessFilters(){
+  updatedProducts = unfilteredProducts;
+  if(filterRPrice.checked) {
+    updatedProducts = filterReasonablePrices(updatedProducts);
+  }
+  if(filterRReleased.checked) {
+    updatedProducts = filterNewReleases(updatedProducts);
+  }
+  var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
+  slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
+  currentProducts = slicedProducts;
+  render(slicedProducts, newPagination);
+}
 
 selectSorting.addEventListener('change', event => {
   var usedList = updatedProducts;
   if (updatedProducts.length == 0){usedList = allProducts;}
   
-  console.log(usedList);
   if (event.target.value == 'none'){
     updatedProducts = usedList;
   }
@@ -326,7 +351,6 @@ selectSorting.addEventListener('change', event => {
   else if (event.target.value == 'date-desc'){
     updatedProducts = usedList.sort(dateCompDesc);
   }
-  console.log(updatedProducts);
 
   var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
   slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
