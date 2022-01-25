@@ -8,9 +8,18 @@ var currentPagination = {};
 // inititiate selectors
 const selectShow = document.querySelector('#show-select');
 const selectPage = document.querySelector('#page-select');
-const selectBrand = document.querySelector('#brand-select')
+const selectBrand = document.querySelector('#brand-select');
+const filterRPrice = document.querySelector('#Rprice');
+const filterRReleased = document.querySelector('#Rreleased')
 const sectionProducts = document.querySelector('#products');
+const selectSorting = document.querySelector('#sort-select');
+
 const spanNbProducts = document.querySelector('#nbProducts');
+const spanNbNewProducts = document.getElementById("nbNewProducts");
+const spanP50 = document.getElementById("p50");
+const spanP90 = document.getElementById("p90");
+const spanP95 = document.getElementById("p95");
+const spanLatestRelease = document.getElementById("latestProductDate");
 
 //Variables needed to be store
 var currentsize = 0;
@@ -31,6 +40,7 @@ const setCurrentProducts = ({result, meta}) => {
 const setAllProducts = ({result, meta}) => {
   allProducts = result;
   brandsList = UniqueBrands(result);
+  renderIndicators(result, meta);
   renderBrands(brandsList);
 };
 
@@ -78,7 +88,7 @@ const renderProducts = products => {
       <div class="product" id=${product.uuid}>
         <span>${product.brand}</span>
         <a href="${product.link}">${product.name}</a>
-        <span>${product.price}</span>
+        <span>${product.price}€</span>
       </div>
     `;
     })
@@ -109,11 +119,16 @@ const renderPagination = pagination => {
  * Render page selector
  * @param  {Object} pagination
  */
-const renderIndicators = pagination => {
+const renderIndicators = (products, pagination) => {
   //console.log(pagination);
   const {count} = pagination;
 
   spanNbProducts.innerHTML = count;
+  spanNbNewProducts.textContent = filterNewReleases().length; //supposed to be done regarding newProducts list
+  spanP50.textContent = POperation(products, 50) + "€";
+  spanP90.textContent = POperation(products, 90) + "€";
+  spanP95.textContent = POperation(products, 95) + "€";
+  spanLatestRelease.textContent = 0;
 };
 
 /**
@@ -132,7 +147,7 @@ const renderBrands = brandsList => {
 const render = (products, pagination) => {
   renderProducts(products);
   renderPagination(pagination);
-  renderIndicators(pagination);
+  //renderIndicators(products, pagination);
   return pagination.count
 };
 
@@ -154,6 +169,34 @@ function onlyUnique(value, index, self) {
 
 function filterByBrand(brandName){
   return allProducts.filter(obj => obj.brand == brandName);
+}
+
+function filterReasonablePrices(priceMax = 50){
+  return updatedProducts.filter(obj => obj.price <= priceMax);
+}
+
+function newRelease(releaseDate, daysThreshold){
+  const datediff = Math.abs(new Date() - new Date(releaseDate));
+  const diffDays = Math.ceil(datediff / (1000 * 60 * 60 * 24));
+  if (diffDays < 14)
+    return releaseDate;
+}
+function filterNewReleases(daysThreshold = 14){
+  return allProducts.filter(obj => newRelease(obj.released, daysThreshold));
+}
+
+//Data sorters :
+var priceComp = (a,b) => {return a.price - b.price}
+var priceCompDesc = (a,b) => {return b.price - a.price}
+var dateComp = (a,b) => {return new Date(a.released) - new Date(b.released)}
+var dateCompDesc = (a,b) => {return new Date(b.released) - new Date(a.released)}
+
+//P50,90,05 statistic generation
+function POperation(products, percentile){
+  const prices = products.map(obj => obj.price);
+  const pricesSorted = prices.sort(priceComp);
+  const Pvalue = pricesSorted[Math.round((100 - percentile) * (prices.length/100))];
+  return Pvalue;
 }
 
 function GenerateNewPagination(newProductList, displaySize, displayPage){
@@ -229,11 +272,68 @@ selectBrand.addEventListener('change', event => {
     updatedProducts = filterByBrand(event.target.value);
     var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
     slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
-    console.log(newPagination);
     currentProducts = slicedProducts;
     currentPagination = newPagination;
     render(slicedProducts, newPagination);
   }
 });
+
+filterRPrice.onchange = function() {
+  if(filterRPrice.checked) {
+    updatedProducts = filterReasonablePrices();
+    var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
+    slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
+    currentProducts = slicedProducts;
+    currentPagination = newPagination;
+    render(slicedProducts, newPagination);
+  } 
+  else {
+    console.log('Unfilter reasonable prices, need to see how to store or recreate unfiltered data');
+  }
+};
+
+filterRReleased.onchange = function() {
+  if(filterRReleased.checked) {
+    updatedProducts = filterNewReleases();
+    var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
+    slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
+    currentProducts = slicedProducts;
+    currentPagination = newPagination;
+    render(slicedProducts, newPagination);
+  } 
+  else {
+    console.log('Unfilter reasonable prices, need to see how to store or recreate unfiltered data');
+  }
+};
+
+selectSorting.addEventListener('change', event => {
+  var usedList = updatedProducts;
+  if (updatedProducts.length == 0){usedList = allProducts;}
+  
+  console.log(usedList);
+  if (event.target.value == 'none'){
+    updatedProducts = usedList;
+  }
+  else if (event.target.value == 'price-asc'){
+    updatedProducts = usedList.sort(priceComp);
+  }
+  else if (event.target.value == 'price-desc'){
+    updatedProducts = usedList.sort(priceCompDesc);
+  }
+  else if (event.target.value == 'date-asc'){
+    updatedProducts = usedList.sort(dateComp);
+  }
+  else if (event.target.value == 'date-desc'){
+    updatedProducts = usedList.sort(dateCompDesc);
+  }
+  console.log(updatedProducts);
+
+  var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
+  slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
+  currentProducts = slicedProducts;
+  currentPagination = newPagination;
+  render(slicedProducts, newPagination);
+});
+
 
 
