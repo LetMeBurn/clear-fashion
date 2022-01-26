@@ -10,7 +10,8 @@ const selectShow = document.querySelector('#show-select');
 const selectPage = document.querySelector('#page-select');
 const selectBrand = document.querySelector('#brand-select');
 const filterRPrice = document.querySelector('#Rprice');
-const filterRReleased = document.querySelector('#Rreleased')
+const filterRReleased = document.querySelector('#Rreleased');
+const filterFavorite = document.querySelector('#favorites');
 const sectionProducts = document.querySelector('#products');
 const selectSorting = document.querySelector('#sort-select');
 
@@ -39,7 +40,13 @@ const setCurrentProducts = ({result, meta}) => {
   currentPagination = meta;
 };
 const setAllProducts = ({result, meta}) => {
+  var wasEmpty = false;
+  if (allProducts.length == 0){
+    wasEmpty = true;
+  }
   allProducts = result;
+  //Sets favorite to false at first load
+  if (wasEmpty){allProducts.map(obj => obj.favorite = false);}
   updatedProducts = result;
   unfilteredProducts = result;
   brandsList = UniqueBrands(result);
@@ -62,7 +69,6 @@ const fetchProducts = async (page = 1, size = 12) => {
     if (size < 100){
       currentsize = size;
     }
-    //Sets length to 0 if we fetch from the API
     updatedProducts = allProducts;
     unfilteredProducts = updatedProducts;
 
@@ -88,11 +94,17 @@ const renderProducts = products => {
   const div = document.createElement('div');
   const template = products
     .map(product => {
+      var buttonStyle = "background-color:white; border-color:black";
+      if (product.favorite){
+        buttonStyle = "background-color:yellow; border-color:orange";
+      }
       return `
       <div class="product" id=${product.uuid}>
         <span>${product.brand}</span>
         <a href="${product.link}">${product.name}</a>
         <span>${product.price}€</span>
+        <button onClick="OnFavoriteClick(${product.uuid})" type="button" style="margin-left:15px; ${buttonStyle}}">👑</button> 
+        <hr align="left" color="#cccccc" width="400px;">
       </div>
     `;
     })
@@ -102,6 +114,8 @@ const renderProducts = products => {
   fragment.appendChild(div);
   sectionProducts.innerHTML = '<h2>Products</h2>';
   sectionProducts.appendChild(fragment);
+
+  //<script src="./portfolio.js"></script> this doesn't work and script html line already in index either
 };
 
 /**
@@ -188,6 +202,10 @@ function newRelease(releaseDate, daysThreshold){
 }
 function filterNewReleases(usedList, daysThreshold = 14){
   return usedList.filter(obj => newRelease(obj.released, daysThreshold));
+}
+
+function filterByFavorite(usedList){
+  return usedList.filter(obj => obj.favorite == true);
 }
 
 //Data sorters :
@@ -282,6 +300,7 @@ selectBrand.addEventListener('change', event => {
     currentPagination = newPagination;
     render(slicedProducts, newPagination);
   }
+  ProcessFilters();
 });
 
 filterRPrice.onchange = function() {
@@ -318,6 +337,23 @@ filterRReleased.onchange = function() {
   }
 };
 
+filterFavorite.onchange = function() {
+  if(filterFavorite.checked) {
+    var usedList = updatedProducts;
+    if (updatedProducts.length == 0){usedList = allProducts;}
+
+    updatedProducts = filterByFavorite(usedList);
+    var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
+    slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
+    currentProducts = slicedProducts;
+    currentPagination = newPagination;
+    render(slicedProducts, newPagination);
+  } 
+  else {
+    ProcessFilters();
+  }
+};
+
 function ProcessFilters(){
   updatedProducts = unfilteredProducts;
   if(filterRPrice.checked) {
@@ -325,6 +361,9 @@ function ProcessFilters(){
   }
   if(filterRReleased.checked) {
     updatedProducts = filterNewReleases(updatedProducts);
+  }
+  if(filterFavorite.checked) {
+    updatedProducts = filterByFavorite(updatedProducts);
   }
   var newPagination = GenerateNewPagination(updatedProducts, currentsize, 1);
   slicedProducts = updatedProducts.slice(0+(newPagination.currentPage-1)*newPagination.pageSize, newPagination.pageSize+(newPagination.currentPage-1)*newPagination.pageSize);
@@ -359,5 +398,11 @@ selectSorting.addEventListener('change', event => {
   render(slicedProducts, newPagination);
 });
 
-
+function OnFavoriteClick(uuidFavorite){
+  productFav = allProducts.find(obj => obj.uuid == uuidFavorite);
+  productFav.favorite = !productFav.favorite;
+  productFav = unfilteredProducts.find(obj => obj.uuid == uuidFavorite);
+  productFav.favorite = !productFav.favorite;
+  ProcessFilters();
+}
 
