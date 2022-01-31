@@ -5,7 +5,11 @@
 var currentProducts = [];
 var currentPagination = {};
 
+<<<<<<< HEAD
 // inititiate selectors
+=======
+// instantiate the selectors
+>>>>>>> 22aaa04fe745ab34e6cd99c453640d670cfb4762
 const selectShow = document.querySelector('#show-select');
 const selectPage = document.querySelector('#page-select');
 const selectBrand = document.querySelector('#brand-select');
@@ -232,8 +236,8 @@ function GenerateNewPagination(newProductList, displaySize, displayPage){
 
 /**
  * Select the number of products to display
- * @type {[type]}
  */
+<<<<<<< HEAD
 
 //Called when page has been fully created
 document.addEventListener('DOMContentLoaded', () =>
@@ -406,3 +410,18 @@ function OnFavoriteClick(uuidFavorite){
   ProcessFilters();
 }
 
+=======
+selectShow.addEventListener('change', async (event) => {
+  const products = await fetchProducts(currentPagination.currentPage, parseInt(event.target.value));
+
+  setCurrentProducts(products);
+  render(currentProducts, currentPagination);
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const products = await fetchProducts();
+
+  setCurrentProducts(products);
+  render(currentProducts, currentPagination);
+});
+>>>>>>> 22aaa04fe745ab34e6cd99c453640d670cfb4762
