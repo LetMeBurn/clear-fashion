@@ -2,6 +2,7 @@
 const dedicatedbrand = require('./sources/dedicatedbrand');
 const montlimartbrand = require('./sources/montlimartbrand');
 const adresseparisbrand = require('./sources/adresseparisbrand');
+const { HostAddress } = require('mongodb');
 
 /*
 async function sandbox (eshop = 'https://www.dedicatedbrand.com/en/men/t-shirts') {
@@ -20,11 +21,11 @@ async function sandbox (eshop = 'https://www.dedicatedbrand.com/en/men/t-shirts'
 }
 */
 
-async function sandbox (eshop = 'https://www.montlimart.com/chaussures.html') {
+async function sandbox (eshop = 'https://adresse.paris/610-pantalons') {
   try {
     console.log(`🕵️‍♀️  browsing ${eshop} source`);
 
-    const products = await montlimartbrand.scrape(eshop);
+    const products = await adresseparisbrand.scrape(eshop);
 
     console.log(products);
     console.log('done');

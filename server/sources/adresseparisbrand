@@ -12,11 +12,11 @@ const parse = data => {
   return $('.product-container')
     .map((i, element) => {
       const name = $(element)
-        .find('.product-name')
+        .find('.product-name:first')
         .text()
         .trim();
       const price = $(element)
-        .find('.price product-price')
+        .find('.product-price:first')
         .text()
         .trim();
 
@@ -24,6 +24,18 @@ const parse = data => {
     })
     .get();
 };
+
+function nameAndPriceExisting(product) {
+    return product.name != '' && product.price != '';
+}
+
+const formatting = products => {
+    products = products.filter(nameAndPriceExisting);
+    products.forEach(product => {
+        product.price = parseFloat(product.price.replace(/\s€/, '').replace(',', '.'));
+    })
+    return products;
+}
 
 /**
  * Scrape all the products for a given url page
@@ -37,7 +49,7 @@ module.exports.scrape = async url => {
     if (response.ok) {
       const body = await response.text();
 
-      return parse(body);
+      return formatting(parse(body));
     }
 
     console.error(response);

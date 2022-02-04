@@ -24,12 +24,12 @@ const parse = data => {
     .get();
 };
 
-function priceExisting(product) {
-    return product.price != '';
+function nameAndPriceExisting(product) {
+    return product.name != '' && product.price != '';
 }
 
 const formatting = products => {
-    products = products.filter(priceExisting);
+    products = products.filter(nameAndPriceExisting);
     products.forEach(product => {
         product.price = parseFloat(product.price.replace(/\s€/, '').replace(',', '.'));
     })
