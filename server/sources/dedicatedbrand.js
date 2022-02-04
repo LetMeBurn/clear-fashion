@@ -16,7 +16,7 @@ const parse = data => {
         .text()
         .trim()
         .replace(/\s/g, ' ');
-      const name = $(element)
+      const link = $(element)
         .find('.productList-link')
         .attr('href');
       const price = parseInt(
