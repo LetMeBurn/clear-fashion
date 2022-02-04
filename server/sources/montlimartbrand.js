@@ -15,6 +15,10 @@ const parse = data => {
         .find('.product-name')
         .find("a")
         .attr("title");
+      const link = $(element)
+        .find('.product-name')
+        .find("a")
+        .attr("href");
       const price = $(element)
         .find('.price')
         .text();

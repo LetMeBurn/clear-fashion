@@ -15,12 +15,15 @@ const parse = data => {
         .find('.product-name:first')
         .text()
         .trim();
+      const link = $(element)
+        .find('.product-name:first')
+        .attr('href');
       const price = $(element)
-        .find('.product-price:first')
+        .find('.product-price:first')   //Doesn't consider comparison between special offer and regular price
         .text()
         .trim();
 
-      return {name, price};
+      return {name, link, price};
     })
     .get();
 };
