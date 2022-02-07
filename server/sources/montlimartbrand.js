@@ -23,7 +23,7 @@ const parse = data => {
         .find('.price')
         .text();
 
-      return {name, price};
+      return {name, price, link};
     })
     .get();
 };
