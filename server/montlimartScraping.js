@@ -41,7 +41,7 @@ async function getAllProducts() {
     count++;
   }
   console.log(allProducts);
-  process.exit(0);
+  return allProducts;
 }
 
 getAllProducts();
