@@ -1,5 +1,5 @@
 /* eslint-disable no-console, no-process-exit */
-const adresseparisbrand = require('./sources/adresseparisbrand');
+const adresseparisbrand = require('./adresseparisbrand');
 const { HostAddress } = require('mongodb');
 
 var allProducts = []
@@ -20,6 +20,6 @@ async function adresseScrape (eshop = mainUrl) {
 
 const [,, eshop] = process.argv;
 
-allProducts = adresseScrape();
+//allProducts = adresseScrape();
 
-
+module.exports = adresseScrape;

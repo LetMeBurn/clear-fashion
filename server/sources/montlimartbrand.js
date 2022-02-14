@@ -36,6 +36,7 @@ const formatting = products => {
     products = products.filter(nameAndPriceExisting);
     products.forEach(product => {
         product.price = parseFloat(product.price.replace(/\s€/, '').replace(',', '.'));
+        products.brand = "montlimart";
     })
     return products;
 }

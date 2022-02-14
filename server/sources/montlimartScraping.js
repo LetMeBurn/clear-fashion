@@ -1,5 +1,5 @@
 /* eslint-disable no-console, no-process-exit */
-const montlimartbrand = require('./sources/montlimartbrand');
+const montlimartbrand = require('./montlimartbrand');
 const { HostAddress } = require('mongodb');
 
 allProducts = []
@@ -40,8 +40,8 @@ async function getAllProducts() {
     }
     count++;
   }
-  console.log(allProducts);
+  //console.log(allProducts);
   return allProducts;
 }
 
-getAllProducts();
+module.exports = getAllProducts;

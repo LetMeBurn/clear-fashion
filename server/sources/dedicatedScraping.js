@@ -1,5 +1,5 @@
 /* eslint-disable no-console, no-process-exit */
-const dedicatedbrand = require('./sources/dedicatedbrand');
+const dedicatedbrand = require('./dedicatedbrand');
 const fetch = require('node-fetch');
 const { HostAddress } = require('mongodb');
 const { get } = require('cheerio/lib/api/traversing');
@@ -25,14 +25,14 @@ async function getAPI() {
             pPrice = parseFloat(pPrice.price.replace(/\sEUR/, ''));
         }
         const pLink = linkBase + product.canonicalUri;
-        return {name:pName, price:pPrice, link:pLink};
+        return {name:pName, price:pPrice, link:pLink, brand:"dedicated"};
     });
     allProducts = allProducts.filter(product => {
         return product.name != null && product.price != null && product.link != null;
     })
 
-    console.log(allProducts);
+    //console.log(allProducts);
     return allProducts;
 }
 
-getAPI();
+module.exports = getAPI;
