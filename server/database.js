@@ -33,6 +33,33 @@ async function connection() {
         // Command to delete every document from collection
         //await collection.deleteMany( { } );
 
+        
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
+async function RetrieveData(brandName = null, maxPrice = 100000, priceSorting = false){
+    const client = await MongoClient.connect(MONGODB_URI, {'useNewUrlParser': true});
+    const db = client.db(MONGODB_DB_NAME);
+    const collection = db.collection("products");
+
+    try {
+        // Connect to the MongoDB cluster
+        await client.connect();
+
+        var sorter = {}
+        if (priceSorting) {sorter.price = 1};
+
+        const filtered = await collection.find({brand : brandName, price : {$lt : maxPrice}}).sort(sorter).toArray();;
+        console.log(filtered);
+
+        // Command to delete every document from collection
+        //await collection.deleteMany( { } );
+
         // Retrieve and displays shop with name : Coiffeur du coin
         //var docs = await FindByName(client, "Coiffeur du coin");
         //console.log(docs);
@@ -47,8 +74,5 @@ async function connection() {
     }
 }
 
-async function RetrieveData(){
-    
-}
-
-connection();
+//connection();
+RetrieveData(brand="adresse", maxPrice = 42, priceSorting = true);
