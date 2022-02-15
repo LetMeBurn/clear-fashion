@@ -2,9 +2,6 @@ const {MongoClient} = require('mongodb');
 const MONGODB_URI = 'mongodb+srv://Myself:GettingIn@clusterclothing.ou37y.mongodb.net/test';
 const MONGODB_DB_NAME = 'clearfashion';
 
-const dedicatedScraping = require('./sources/dedicatedScraping');
-const montlimartScraping = require('./sources/montlimartScraping');
-const adresseScraping = require('./sources/adresseScraping');
 const adresseScrape = require('./sources/adresseScraping');
 const getAPI = require('./sources/dedicatedScraping');
 const getAllProducts = require('./sources/montlimartScraping');
