@@ -21,7 +21,7 @@ app.get('/', (request, response) => {
 });
 
 app.get("/products", async (request, response) => {
-  const products = await RetrieveData();
+  const products = await RetrieveData({});
   response.send(products);
 });
 

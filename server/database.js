@@ -56,14 +56,18 @@ async function RetrieveData(options){
             filtered = await collection.findOne({_id : o_id});
         }
         else {
-            if (!options.brandName) {options.brandName = null}
             if (!options.maxPrice) {options.maxPrice = 100000}
             if (!options.limit) {options.limit = 100000}
 
             var sorter = {}
             if (options.order == 'price') {sorter.price = 1};
-
-            filtered = await collection.find({brand : options.brandName, price : {$lt : options.maxPrice}}).limit(options.limit).sort(sorter).toArray();;
+            
+            if (!options.brandName){
+                filtered = await collection.find({price : {$lt : options.maxPrice}}).limit(options.limit).sort(sorter).toArray();;
+            }
+            else{
+                filtered = await collection.find({brand : options.brandName, price : {$lt : options.maxPrice}}).limit(options.limit).sort(sorter).toArray();;
+            }
         }
 
         console.log(filtered);
@@ -82,3 +86,4 @@ module.exports = RetrieveData;
 //connection();
 //RetrieveData({brandName: "adresse", maxPrice: 42, priceSorting: true, limit: 2});
 //RetrieveData({id: '620a66f7f427af727c3858ec'})
+//RetrieveData({})
