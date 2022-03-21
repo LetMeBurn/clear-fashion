@@ -40,6 +40,9 @@ async function connection() {
     }
 }
 
+// Options.limit (number of products displayed)
+// & Options.page (page of products displayed)
+// are mandatory.
 async function RetrieveData(options){
     const client = await MongoClient.connect(MONGODB_URI, {'useNewUrlParser': true});
     const db = client.db(MONGODB_DB_NAME);
@@ -56,17 +59,19 @@ async function RetrieveData(options){
             filtered = await collection.findOne({_id : o_id});
         }
         else {
+
+            if (!options.page) {options.page = 1}
+            if (!options.limit) {options.limit = 12}  //Here is the limit default
             if (!options.maxPrice) {options.maxPrice = 100000}
-            if (!options.limit) {options.limit = 100000}
 
             var sorter = {}
             if (options.order == 'price') {sorter.price = 1};
             
             if (!options.brandName){
-                filtered = await collection.find({price : {$lt : options.maxPrice}}).limit(options.limit).sort(sorter).toArray();;
+                filtered = await collection.find({price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;
             }
             else{
-                filtered = await collection.find({brand : options.brandName, price : {$lt : options.maxPrice}}).limit(options.limit).sort(sorter).toArray();;
+                filtered = await collection.find({brand : options.brandName, price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;
             }
         }
 
