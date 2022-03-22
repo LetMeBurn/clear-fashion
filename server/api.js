@@ -37,6 +37,7 @@ app.get("/products/search", async (request, response) => {
   if (query.price) options["maxPrice"] = parseFloat(query.price);
   if (query.order) options["order"] = query.order;
   if (query.limit) options["limit"] = parseInt(query.limit);
+  if (query.page) options["page"] = parseInt(query.page);
   console.log(options)
   const result = await RetrieveData(options);
   await response.send(result);
