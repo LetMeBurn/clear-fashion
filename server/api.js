@@ -20,6 +20,11 @@ app.get('/', (request, response) => {
   response.send({'ack': true});
 });
 
+app.get("/brands", async (request, response) => {
+  const brands = await RetrieveData({brandName : 'getList'});
+  response.send(brands);
+});
+
 app.get("/products", async (request, response) => {
   const products = await RetrieveData({});
   response.send(products);
@@ -34,7 +39,7 @@ app.get("/products/search", async (request, response) => {
   const query = request.query;
   const options = {};
   if (query.brand) options["brandName"] = query.brand;
-  if (query.price) options["maxPrice"] = parseFloat(query.price);
+  if (query.maxPrice) options["maxPrice"] = parseFloat(query.maxPrice);
   if (query.order) options["order"] = query.order;
   if (query.limit) options["limit"] = parseInt(query.limit);
   if (query.page) options["page"] = parseInt(query.page);

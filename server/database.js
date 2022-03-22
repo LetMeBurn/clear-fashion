@@ -70,6 +70,9 @@ async function RetrieveData(options){
             if (!options.brandName){
                 filtered = await collection.find({price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;
             }
+            else if (options.brandName == 'getList'){
+                filtered = await collection.distinct('brand');
+            }
             else{
                 filtered = await collection.find({brand : options.brandName, price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;
             }
@@ -89,6 +92,7 @@ async function RetrieveData(options){
 module.exports = RetrieveData;
 
 //connection();
-//RetrieveData({brandName: "adresse", maxPrice: 42, priceSorting: true, limit: 2});
+//RetrieveData({brandName: "adresse", maxPrice: 42, order: '', limit: 5});
 //RetrieveData({id: '620a66f7f427af727c3858ec'})
+//RetrieveData({maxPrice : 40})
 //RetrieveData({})
