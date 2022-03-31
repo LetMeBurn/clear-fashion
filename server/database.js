@@ -65,7 +65,12 @@ async function RetrieveData(options){
             if (!options.maxPrice) {options.maxPrice = 100000}
 
             var sorter = {}
-            if (options.order == 'price') {sorter.price = 1};
+            console.log(options.order)
+            if (options.order == 'price') {sorter.price = 1}
+            else if (options.order == 'pricedesc') {
+                sorter.price = -1
+                console.log("I'm supposed to sort price descending")
+            }
             
             if (!options.brandName){
                 filtered = await collection.find({price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;
@@ -92,7 +97,8 @@ async function RetrieveData(options){
 module.exports = RetrieveData;
 
 //connection();
-//RetrieveData({brandName: "adresse", maxPrice: 42, order: '', limit: 5});
+//RetrieveData({brandName: "adresse", maxPrice: 42, order: 'pricedesc', limit: 5});
 //RetrieveData({id: '620a66f7f427af727c3858ec'})
 //RetrieveData({maxPrice : 40})
+//RetrieveData({order : 'pricedesc'})
 //RetrieveData({})

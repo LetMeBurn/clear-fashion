@@ -1,7 +1,7 @@
 // Invoking strict mode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode#invoking_strict_mode
 'use strict';
 
-const { options } = require("../../server/api");
+//const { options } = require("../../server/api");
 
 // current products on the page
 var currentProducts = [];
@@ -184,7 +184,7 @@ const renderIndicators = (products, pagination) => {
  * @param  {Array} brands
  */
 const renderBrands = brandsList => {
-  var htmlBrands = "";
+  var htmlBrands = `<option value="Any">Any</option>`
   for (let i = 0; i < brandsList.length; i++) {
     htmlBrands += `<option value="${brandsList[i]}">${brandsList[i]}</option>`
   }
