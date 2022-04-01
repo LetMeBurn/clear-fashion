@@ -67,10 +67,7 @@ async function RetrieveData(options){
             var sorter = {}
             console.log(options.order)
             if (options.order == 'price') {sorter.price = 1}
-            else if (options.order == 'pricedesc') {
-                sorter.price = -1
-                console.log("I'm supposed to sort price descending")
-            }
+            else if (options.order == 'pricedesc') {sorter.price = -1}
             
             if (!options.brandName){
                 filtered = await collection.find({price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;
