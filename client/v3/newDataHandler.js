@@ -54,11 +54,10 @@ var currentPageDisplay = 1
         }
         
         var stringSearch = ''
-        var countSearch = ''
+        var countSearch = '/search?limit=100000&page=1&'
         //if response filters are asked for
         if (Object.entries(currentOptions).length !== 0){
             stringSearch += '/search?'
-            countSearch += '/search?'
     
             //Used to manage &'s at the end of new options
             var firstOption = true
@@ -72,18 +71,16 @@ var currentPageDisplay = 1
                     
                     stringSearch += `${key}=${currentOptions[key]}`
                     //Allows to get the number of products regarding filters
-                    if (key == 'limit'){countSearch += `${key}=-1`}
-                    else {countSearch += `${key}=${currentOptions[key]}`}
+                    if (key != 'limit' && key != 'page') {countSearch += `${key}=${currentOptions[key]}`}
                 }
             }
-        }
-        else{
-            countSearch += '/search?limit=-1'
         }
 
         const countAPILink = `https://clear-fashion-psi.vercel.app/products${countSearch}`
         console.log(`Count link is : ${countAPILink}`)
-        currentCount = await fetch(countAPILink);
+        const responseCount = await fetch(countAPILink);
+        const bodyCount = await responseCount.json();
+        currentCount = Object.keys(bodyCount).length;
     
         const apiLink = `https://clear-fashion-psi.vercel.app/products${stringSearch}`
         console.log(apiLink)
