@@ -31,6 +31,8 @@ const spanLatestRelease = document.getElementById("latestProductDate");
 // Brand-new variables to be needed for v3
 
 var currentOptions = {}
+var currentCount = 0
+var currentPageDisplay = 1
 ////////////////////////////////////////////////
 
 
@@ -52,22 +54,36 @@ var currentOptions = {}
         }
         
         var stringSearch = ''
+        var countSearch = ''
         //if response filters are asked for
         if (Object.entries(currentOptions).length !== 0){
             stringSearch += '/search?'
+            countSearch += '/search?'
     
             //Used to manage &'s at the end of new options
             var firstOption = true
             for (const key in currentOptions) {
                 if (currentOptions.hasOwnProperty(key)) {
                     if (firstOption) {firstOption = false;}
-                    else {stringSearch += '&'}
-    
+                    else {
+                        stringSearch += '&'
+                        countSearch += '&'
+                    }
+                    
                     stringSearch += `${key}=${currentOptions[key]}`
+                    //Allows to get the number of products regarding filters
+                    if (key == 'limit'){countSearch += `${key}=-1`}
+                    else {countSearch += `${key}=${currentOptions[key]}`}
                 }
             }
-    
         }
+        else{
+            countSearch += '/search?limit=-1'
+        }
+
+        const countAPILink = `https://clear-fashion-psi.vercel.app/products${countSearch}`
+        console.log(`Count link is : ${countAPILink}`)
+        currentCount = await fetch(countAPILink);
     
         const apiLink = `https://clear-fashion-psi.vercel.app/products${stringSearch}`
         console.log(apiLink)

@@ -1,3 +1,4 @@
+const { filter } = require('cheerio/lib/api/traversing');
 const mongo = require('mongodb');
 const {MongoClient} = require('mongodb');
 const MONGODB_URI = 'mongodb+srv://Myself:GettingIn@clusterclothing.ou37y.mongodb.net/test';
@@ -70,13 +71,15 @@ async function RetrieveData(options){
             else if (options.order == 'pricedesc') {sorter.price = -1}
             
             if (!options.brandName){
-                filtered = await collection.find({price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;
+                if (options.limit == -1) {filtered = await collection.countDocuments({price : {$lt : options.maxPrice}})}
+                else {filtered = await collection.find({price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;}
             }
             else if (options.brandName == 'getList'){
                 filtered = await collection.distinct('brand');
             }
             else{
-                filtered = await collection.find({brand : options.brandName, price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;
+                if (options.limit == -1) {filtered = await collection.countDocuments({brand : options.brandName, price : {$lt : options.maxPrice}})}
+                else {filtered = await collection.find({brand : options.brandName, price : {$lt : options.maxPrice}}).skip(options.page * options.limit).limit(options.limit).sort(sorter).toArray();;}
             }
         }
 
@@ -96,6 +99,5 @@ module.exports = RetrieveData;
 //connection();
 //RetrieveData({brandName: "adresse", maxPrice: 42, order: 'pricedesc', limit: 5});
 //RetrieveData({id: '620a66f7f427af727c3858ec'})
-//RetrieveData({maxPrice : 40})
+//RetrieveData({maxPrice : 40, limit : -1})
 //RetrieveData({order : 'pricedesc'})
-//RetrieveData({})
